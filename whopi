@@ -1,0 +1,39 @@
+#!/bin/bash
+
+#################################################################
+#
+# determine how many people are on the raspberry pi's
+# author: Jared Clark
+#
+#################################################################
+
+PIS=(raspberry blueberry cherry apple chocolate lemon pumpkin pecan\
+    sweetpotato keylime strawberry bostoncream spinach coconut\
+    butterscotch peach blackberry bananacream peanutbutter mulberry\
+    frenchsilk boysenberry)
+
+# when=1, stop when we find a pi that has 0 users
+# when=0, check every pi regardless of user count
+STOP_WHEN_0=1
+
+# if -a is an argument, have the program print the results from every pi
+if [ "$1" == "-a" ]; then
+  STOP_WHEN_0=0
+fi
+
+# print a header
+printf "%-15s%s\n" "PI" "USERS"
+echo "===================="
+
+# iterate through each pi, printing the number of users on each one
+for pi in ${PIS[*]}; do
+  LINES="$(ssh $USER@$pi who | wc -l)"
+  COUNT=$((LINES - 2))
+  printf "%-15s: %d\n" $pi $COUNT
+
+  # if there are 0 people on this pi and -a was an argument, quit looping
+  if [ $STOP_WHEN_0 -eq 1 ] && [ $COUNT -eq 0 ]; then
+    break
+  fi
+
+done
